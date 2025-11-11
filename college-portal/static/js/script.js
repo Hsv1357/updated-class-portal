@@ -586,4 +586,32 @@ function printSection(sectionId) {
         printWindow.document.close();
         printWindow.print();
     }
+    // Dark Mode Functionality
+function initializeDarkMode() {
+    const darkModeSwitch = document.getElementById('dark-mode-switch');
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    
+    // Set initial theme
+    if (currentTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        darkModeSwitch.checked = true;
+    }
+    
+    // Toggle theme
+    darkModeSwitch.addEventListener('change', function() {
+        if (this.checked) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+        }
+    });
+}
+
+// Call this function in your main initialization
+document.addEventListener('DOMContentLoaded', function() {
+    initializeDarkMode();
+    // ... your other initialization code
+});
 }

@@ -262,7 +262,8 @@ def admin_dashboard():
                          pending_permissions=pending_permissions,
                          events_count=events_count,
                          students=students,
-                         faculty=faculty)
+                         faculty=faculty,
+                         current_date=date.today())
 
 @app.route('/faculty/dashboard')
 def faculty_dashboard():
@@ -315,7 +316,8 @@ def faculty_dashboard():
                          permissions=permissions,
                          classes=classes,
                          students=students,
-                         today_attendance=attendance_dict)
+                         today_attendance=attendance_dict,
+                         current_date=date.today())
 
 @app.route('/student/dashboard')
 def student_dashboard():
@@ -377,7 +379,8 @@ def student_dashboard():
                          events_count=events_count,
                          attendance=attendance,
                          permissions=permissions,
-                         student=student)
+                         student=student,
+                         current_date=date.today())
 
 # API Routes for AJAX operations
 @app.route('/api/add_user', methods=['POST'])
@@ -393,7 +396,7 @@ def add_user():
                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
                     (data['username'], data['password'], 'student', data['name'], 
                      data.get('email'), data.get('class'), data.get('rollno'), 
-                     data.get('section'), data.get('department'), user_id))
+                     data.get('section'), data.get('department')))
         conn.commit()
         conn.close()
         return jsonify({'success': True, 'message': 'Student added successfully'})

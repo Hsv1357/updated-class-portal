@@ -1,6 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
+<body>
+    <!-- Dark Mode Toggle -->
+    <div class="dark-mode-toggle">
+        <input type="checkbox" id="dark-mode-switch" class="dark-mode-checkbox">
+        <label for="dark-mode-switch" class="dark-mode-label">
+            <span class="dark-mode-slider"></span>
+            <span class="dark-mode-sun">☀️</span>
+            <span class="dark-mode-moon">🌙</span>
+        </label>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <!-- Your existing header content -->
+    </header>
 <!-- Hero Section -->
 <section class="hero" id="home">
     <div class="hero-content">
@@ -136,4 +151,13 @@
         <!-- Cards will be the same as above -->
     </div>
 </section>
+<!-- Dark Mode Toggle -->
+<div class="dark-mode-toggle">
+    <input type="checkbox" id="dark-mode-switch" class="dark-mode-checkbox">
+    <label for="dark-mode-switch" class="dark-mode-label">
+        <span class="dark-mode-slider"></span>
+        <span class="dark-mode-sun">☀️</span>
+        <span class="dark-mode-moon">🌙</span>
+    </label>
+</div>
 {% endblock %}
