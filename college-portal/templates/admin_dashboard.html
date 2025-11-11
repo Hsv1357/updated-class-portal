@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - College Portal{% endblock %}
+
+{% block content %}
+<section class="dashboard">
+    <div class="container">
+        <div class="dashboard-header">
+            <h2 class="dashboard-title">Admin Dashboard</h2>
+            <div class="user-info">
+                <div class="user-avatar">A</div>
+                <span>{{ session.name }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <div class="stat-number admin-stat">{{ students_count }}</div>
+                <p>Total Students</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number admin-stat">{{ faculty_count }}</div>
+                <p>Total Faculty</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number admin-stat">{{ pending_permissions }}</div>
+                <p>Pending Permissions</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number admin-stat">{{ events_count }}</div>
+                <p>Active Events</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions Section -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3>Quick Actions</h3>
+            </div>
+            <div class="quick-actions-grid">
+                <div class="quick-action-card">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h4>Student Management</h4>
+                    <p>View and manage all student records</p>
+                    <div class="action-buttons">
+                        <button class="btn btn-admin" id="view-students-btn">View Students</button>
+                        <button class="btn btn-admin" id="upload-students-btn">Upload Excel</button>
+                        <button class="btn btn-admin" id="add-user-btn">Add Student</button>
+                    </div>
+                </div>
+
+                <div class="quick-action-card">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h4>Faculty Management</h4>
+                    <p>View and manage all faculty records</p>
+                    <div class="action-buttons">
+                        <button class="btn btn-admin" id="view-faculty-btn">View Faculty</button>
+                        <button class="btn btn-admin" id="upload-faculty-btn">Upload Excel</button>
+                        <button class="btn btn-admin" id="add-faculty-btn">Add Faculty</button>
+                    </div>
+                </div>
+
+                <div class="quick-action-card">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h4>Clubs & Events</h4>
+                    <p>Manage college clubs and events</p>
+                    <div class="action-buttons">
+                        <button class="btn btn-admin" id="add-club-event-btn">Add Club/Event</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Students Section (Hidden by default, shown when View Students is clicked) -->
+        <div class="dashboard-section" id="students-section" style="display: none;">
+            <div class="section-header">
+                <h3>Students List</h3>
+                <button class="btn btn-admin" onclick="hideSection('students-section')">Close</button>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Roll No</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Section</th>
+                            <th>Department</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>{{ student.id }}</td>
+                            <td>{{ student.rollno or 'N/A' }}</td>
+                            <td>{{ student.name }}</td>
+                            <td>{{ student.email or 'N/A' }}</td>
+                            <td>{{ student.section or 'N/A' }}</td>
+                            <td>{{ student.department or 'N/A' }}</td>
+                            <td>
+                                <button class="action-btn btn-edit" onclick="editUser({{ student.id }}, 'student')">Edit</button>
+                                <button class="action-btn btn-delete" onclick="deleteUser({{ student.id }}, 'student')">Delete</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Faculty Section (Hidden by default, shown when View Faculty is clicked) -->
+        <div class="dashboard-section" id="faculty-section" style="display: none;">
+            <div class="section-header">
+                <h3>Faculty List</h3>
+                <button class="btn btn-admin" onclick="hideSection('faculty-section')">Close</button>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Username</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for faculty_member in faculty %}
+                        <tr>
+                            <td>{{ faculty_member.id }}</td>
+                            <td>{{ faculty_member.name }}</td>
+                            <td>{{ faculty_member.email or 'N/A' }}</td>
+                            <td>{{ faculty_member.department or 'N/A' }}</td>
+                            <td>{{ faculty_member.username }}</td>
+                            <td>
+                                <button class="action-btn btn-edit" onclick="editUser({{ faculty_member.id }}, 'faculty')">Edit</button>
+                                <button class="action-btn btn-delete" onclick="deleteUser({{ faculty_member.id }}, 'faculty')">Delete</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3>Manage Clubs & Events</h3>
+                <button class="btn btn-admin" id="add-club-event-btn-main">Add Club/Event</button>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clubs-events-table">
+                        <!-- Will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- All modals remain the same as before -->
+<!-- Add User Modal -->
+<div class="modal" id="add-user-modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Add New Student</h2>
+        <form id="add-user-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email">
+            </div>
+            <div class="form-group">
+                <label for="rollno">Roll Number</label>
+                <input type="text" id="rollno" name="rollno" required>
+            </div>
+            <div class="form-group">
+                <label for="section">Section</label>
+                <input type="text" id="section" name="section" required>
+            </div>
+            <div class="form-group">
+                <label for="department">Department</label>
+                <input type="text" id="department" name="department" required>
+            </div>
+            <div class="form-group">
+                <label for="class">Class</label>
+                <input type="text" id="class" name="class">
+            </div>
+            <button type="submit" class="btn btn-admin">Add Student</button>
+        </form>
+    </div>
+</div>
+
+<!-- Upload Students Modal -->
+<div class="modal" id="upload-students-modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Upload Students Excel</h2>
+        <form id="upload-students-form" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="students-file">Excel File</label>
+                <input type="file" id="students-file" name="file" accept=".xlsx,.xls" required>
+                <small><strong>Required columns:</strong> RollNo, Name, Email Id, Section, Dept, Password</small>
+            </div>
+            <button type="submit" class="btn btn-admin">Upload Students</button>
+        </form>
+    </div>
+</div>
+
+<!-- Upload Faculty Modal -->
+<div class="modal" id="upload-faculty-modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Upload Faculty Excel</h2>
+        <form id="upload-faculty-form" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="faculty-file">Excel File</label>
+                <input type="file" id="faculty-file" name="file" accept=".xlsx,.xls" required>
+                <small><strong>Required columns:</strong> Name, Email Id, Dept, Password</small>
+            </div>
+            <button type="submit" class="btn btn-admin">Upload Faculty</button>
+        </form>
+    </div>
+</div>
+
+<!-- Add Faculty Modal -->
+<div class="modal" id="add-faculty-modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Add New Faculty</h2>
+        <form id="add-faculty-form">
+            <div class="form-group">
+                <label for="faculty-username">Username</label>
+                <input type="text" id="faculty-username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="faculty-password">Password</label>
+                <input type="password" id="faculty-password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="faculty-name">Full Name</label>
+                <input type="text" id="faculty-name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="faculty-email">Email</label>
+                <input type="email" id="faculty-email" name="email">
+            </div>
+            <div class="form-group">
+                <label for="faculty-department">Department</label>
+                <input type="text" id="faculty-department" name="department" required>
+            </div>
+            <button type="submit" class="btn btn-admin">Add Faculty</button>
+        </form>
+    </div>
+</div>
+
+<!-- Add Club/Event Modal -->
+<div class="modal" id="add-club-event-modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Add Club or Event</h2>
+        <form id="add-club-event-form">
+            <div class="form-group">
+                <label for="club-event-name">Name</label>
+                <input type="text" id="club-event-name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="club-event-type">Type</label>
+                <select id="club-event-type" name="type" required>
+                    <option value="club">Club</option>
+                    <option value="event">Event</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-admin">Add Club/Event</button>
+        </form>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal" id="edit-user-modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2 id="edit-user-title">Edit User</h2>
+        <form id="edit-user-form">
+            <input type="hidden" id="edit-user-id" name="id">
+            <input type="hidden" id="edit-user-role" name="role">
+            <div class="form-group">
+                <label for="edit-name">Full Name</label>
+                <input type="text" id="edit-name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-email">Email</label>
+                <input type="email" id="edit-email" name="email">
+            </div>
+            <div id="student-fields">
+                <div class="form-group">
+                    <label for="edit-rollno">Roll Number</label>
+                    <input type="text" id="edit-rollno" name="rollno">
+                </div>
+                <div class="form-group">
+                    <label for="edit-section">Section</label>
+                    <input type="text" id="edit-section" name="section">
+                </div>
+                <div class="form-group">
+                    <label for="edit-department">Department</label>
+                    <input type="text" id="edit-department" name="department">
+                </div>
+                <div class="form-group">
+                    <label for="edit-class">Class</label>
+                    <input type="text" id="edit-class" name="class">
+                </div>
+            </div>
+            <div id="faculty-fields" style="display: none;">
+                <div class="form-group">
+                    <label for="edit-faculty-department">Department</label>
+                    <input type="text" id="edit-faculty-department" name="department">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-admin">Update User</button>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Club/Event Modal -->
+<div class="modal" id="edit-club-event-modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Edit Club/Event</h2>
+        <form id="edit-club-event-form">
+            <input type="hidden" id="edit-club-event-id" name="id">
+            <div class="form-group">
+                <label for="edit-club-event-name">Name</label>
+                <input type="text" id="edit-club-event-name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-club-event-type">Type</label>
+                <select id="edit-club-event-type" name="type" required>
+                    <option value="club">Club</option>
+                    <option value="event">Event</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-admin">Update Club/Event</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin_dashboard.js') }}"></script>
+{% endblock %}

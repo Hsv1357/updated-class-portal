@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Faculty Dashboard - College Portal{% endblock %}
+
+{% block content %}
+<section class="dashboard">
+    <div class="container">
+        <div class="dashboard-header">
+            <h2 class="dashboard-title">Faculty Dashboard</h2>
+            <div class="user-info">
+                <div class="user-avatar">F</div>
+                <span>{{ session.name }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <div class="stat-number faculty-stat">{{ classes_count }}</div>
+                <p>My Classes</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number faculty-stat">{{ students_count }}</div>
+                <p>Students</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number faculty-stat">{{ pending_permissions }}</div>
+                <p>Pending Permissions</p>
+            </div>
+        </div>
+
+        <!-- Attendance Section -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3>Mark Attendance - {{ date.today().strftime('%Y-%m-%d') }}</h3>
+                <button class="btn btn-faculty" id="save-attendance-btn">Save Attendance</button>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Roll No</th>
+                            <th>Name</th>
+                            <th>Section</th>
+                            <th>Department</th>
+                            <th>Attendance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendance-table">
+                        {% for student in students %}
+                        <tr>
+                            <td>{{ student.rollno }}</td>
+                            <td>{{ student.name }}</td>
+                            <td>{{ student.section }}</td>
+                            <td>{{ student.department }}</td>
+                            <td>
+                                <div class="attendance-options">
+                                    <label class="radio-label">
+                                        <input type="radio" name="attendance_{{ student.id }}" value="present" 
+                                               {% if today_attendance.get(student.id) == 'present' %}checked{% endif %}>
+                                        <span class="radio-text">Present</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="attendance_{{ student.id }}" value="absent"
+                                               {% if today_attendance.get(student.id) == 'absent' %}checked{% endif %}>
+                                        <span class="radio-text">Absent</span>
+                                    </label>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3>Pending Permissions</h3>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Roll No</th>
+                            <th>Date</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for permission in permissions %}
+                        <tr>
+                            <td>{{ permission.student_name }}</td>
+                            <td>{{ permission.rollno }}</td>
+                            <td>{{ permission.date }}</td>
+                            <td>{{ permission.reason }}</td>
+                            <td class="status-{{ permission.status }}">{{ permission.status|title }}</td>
+                            <td>
+                                {% if permission.status == 'pending' %}
+                                <button class="action-btn btn-approve" data-id="{{ permission.id }}">Approve</button>
+                                <button class="action-btn btn-reject" data-id="{{ permission.id }}">Reject</button>
+                                {% else %}
+                                <span class="action-completed">Processed</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3>My Classes</h3>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Class</th>
+                            <th>Schedule</th>
+                            <th>Room</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for class in classes %}
+                        <tr>
+                            <td>{{ class.name }}</td>
+                            <td>{{ class.schedule }}</td>
+                            <td>{{ class.room }}</td>
+                            <td>
+                                <button class="action-btn btn-edit">View Attendance</button>
+                                <button class="action-btn btn-approve">Export</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/faculty_dashboard.js') }}"></script>
+{% endblock %}
